@@ -56,7 +56,8 @@ class Loader(BaseLoader):
                                      label_transform=label_transform)
 
         root = cfg.DATASET.MAPILLARY_DIR
-        config_fn = os.path.join(root, 'config.json')
+        version = "v1.2"
+        config_fn = os.path.join(root, 'config_{}.json'.format(version))
         self.fill_colormap_and_names(config_fn)
 
         ######################################################################
@@ -72,7 +73,7 @@ class Loader(BaseLoader):
             img_ext = 'jpg'
             mask_ext = 'png'
             img_root = os.path.join(root, split_name, 'images')
-            mask_root = os.path.join(root, split_name, 'labels')
+            mask_root = os.path.join(root, split_name, version, 'labels')
             self.all_imgs = self.find_images(img_root, mask_root, img_ext,
                                              mask_ext)
         logx.msg('all imgs {}'.format(len(self.all_imgs)))
@@ -98,6 +99,7 @@ class Loader(BaseLoader):
         # calculate label color mapping
         colormap = []
         self.trainid_to_name = {}
+        
         for i in range(0, len(config_labels)):
             colormap = colormap + config_labels[i]['color']
             name = config_labels[i]['readable']

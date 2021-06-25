@@ -121,7 +121,12 @@ def setup_loaders(args):
         target_train_transform = extended_transforms.MaskToTensor()
 
     if args.eval == 'folder':
-        val_joint_transform_list = None
+        if args.pre_size is not None: 
+            print("Using pre_size: {}".format(args.pre_size))
+            val_joint_transform_list = [
+                joint_transforms.Scale(args.pre_size )]
+        else:
+            val_joint_transform_list = None
     elif 'mapillary' in args.dataset:
         if args.pre_size is None:
             eval_size = 2177
@@ -132,6 +137,7 @@ def setup_loaders(args):
                 joint_transforms.ResizeHeight(eval_size),
                 joint_transforms.CenterCropPad(eval_size)]
         else:
+            eval_size = 1280 # Sijin: hack for shortage of gpu memory.
             val_joint_transform_list = [
                 joint_transforms.Scale(eval_size)]
     else:

@@ -138,7 +138,10 @@ def eval_minibatch(data, net, criterion, val_loss, calc_metrics, args, val_idx):
                 #   optional:
                 #     'pred_*' - multi-scale predictions from mscale model
                 #     'attn_*' - multi-scale attentions from mscale model
+                # import time 
+                # start_time = time.time()
                 output_dict = net(inputs)
+                # print("Infer time: {}".format(time.time()-start_time))
 
                 _pred = output_dict['pred']
 

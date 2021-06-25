@@ -4,21 +4,22 @@ CMD: "python -m torch.distributed.launch --nproc_per_node=1 train.py"
 
 HPARAMS: [
   {
-   dataset: cityscapes,
+   dataset: mapillary,
    cv: 0,
    syncbn: true,
    apex: true,
    fp16: true,
    bs_val: 1,
    eval: folder,
-   eval_folder: './imgs/test_imgs',
+   eval_folder: '/sijin/00code/calibration_utils/arcar/images', #'./imgs/test_imgs',
    dump_assets: true,
    dump_all_images: true,
-   n_scales: "0.5,1.0,2.0",
-   #snapshot: "ASSETS_PATH/04model/seg_weights/mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake.pth",
-   snapshot: "ASSETS_PATH/04model/seg_weights/cityscapes_ocrnet.HRNet_Mscale_outstanding-turtle.pth",
+   pre_size: 1920,
+   n_scales: "1.0",
+   snapshot: "ASSETS_PATH/04model/seg_weights/mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake.pth",
    arch: ocrnet.HRNet_Mscale,
    result_dir: LOGDIR,
   },
 ]
 
+#snapshot: "ASSETS_PATH/04model/seg_weights/cityscapes_ocrnet.HRNet_Mscale_outstanding-turtle.pth",
