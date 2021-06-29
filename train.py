@@ -480,8 +480,7 @@ def train(train_loader, net, optim, curr_epoch):
     for i, data in enumerate(train_loader):
         if i <= warmup_iter:
             start_time = time.time()
-        else:
-            break
+
         # inputs = (bs,3,713,713)
         # gts    = (bs,713,713)
         images, gts, _img_name, scale_float = data

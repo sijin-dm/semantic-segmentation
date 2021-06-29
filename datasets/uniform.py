@@ -238,7 +238,7 @@ def build_centroids(imgs, num_classes, train, cv=None, coarse=False,
             centroid_fn += '_customcoarse_final'
     else:
         centroid_fn += '_cv{}'.format(cv)
-    centroid_fn += '_tile{}.json'.format(cfg.DATASET.CLASS_UNIFORM_TILE)
+    centroid_fn += '_tile{}_class{}.json'.format(cfg.DATASET.CLASS_UNIFORM_TILE, num_classes)
     json_fn = os.path.join(cfg.DATASET.CENTROID_ROOT,
                            centroid_fn)
     if os.path.isfile(json_fn):

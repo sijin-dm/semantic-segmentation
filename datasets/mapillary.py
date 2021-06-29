@@ -41,8 +41,8 @@ from datasets import uniform
 
 
 class Loader(BaseLoader):
-    num_classes = 65
-    ignore_label = 65
+    num_classes = 29
+    ignore_label = 29
     trainid_to_name = {}
     color_mapping = []
 
@@ -56,8 +56,8 @@ class Loader(BaseLoader):
                                      label_transform=label_transform)
 
         root = cfg.DATASET.MAPILLARY_DIR
-        version = "v1.2"
-        config_fn = os.path.join(root, 'config_{}.json'.format(version))
+        version = "v2.0"
+        config_fn = os.path.join(root, 'config_{}_dm.json'.format(version))
         self.fill_colormap_and_names(config_fn)
 
         ######################################################################
@@ -73,7 +73,7 @@ class Loader(BaseLoader):
             img_ext = 'jpg'
             mask_ext = 'png'
             img_root = os.path.join(root, split_name, 'images')
-            mask_root = os.path.join(root, split_name, version, 'labels')
+            mask_root = os.path.join(root, split_name, version, 'labels_dm')
             self.all_imgs = self.find_images(img_root, mask_root, img_ext,
                                              mask_ext)
         logx.msg('all imgs {}'.format(len(self.all_imgs)))
