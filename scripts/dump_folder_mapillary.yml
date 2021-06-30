@@ -1,6 +1,6 @@
 # Run Evaluation and Dump Images on Cityscapes with a pretrained model
 
-CMD: "python -m torch.distributed.launch --nproc_per_node=1 train.py"
+CMD: "CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port 2955 train.py "
 
 HPARAMS: [
   {
@@ -11,11 +11,12 @@ HPARAMS: [
    fp16: true,
    bs_val: 1,
    eval: folder,
-   eval_folder: '/sijin/00code/calibration_utils/arcar/images', #'./imgs/test_imgs',
+   eval_folder: '/mnt/nas/share-map/experiment/liuye/Mobili/Image', #'/mnt/nas/share-map/experiment/sijin/05data', #'/mnt/nas/share-map/experiment/liuye/Mobili/Image',
    dump_assets: true,
    dump_all_images: true,
+  #  dump_for_auto_labelling: true, # For labeling
    pre_size: 1920,
-   n_scales: "1.0",
+   n_scales: "0.5,1.0,2.0",
    snapshot: "ASSETS_PATH/04model/seg_weights/mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake.pth",
    arch: ocrnet.HRNet_Mscale,
    result_dir: LOGDIR,

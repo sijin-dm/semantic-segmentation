@@ -41,11 +41,21 @@ from datasets import uniform
 
 
 class Loader(BaseLoader):
-    num_classes = 29
-    ignore_label = 29
     trainid_to_name = {}
     color_mapping = []
 
+    version = "v1.2"
+    if version == "v2.0_dm":
+        num_classes = 29
+        ignore_label = 29
+        label_folder = "labels_dm"
+    elif version == "v1.2":
+        num_classes = 65
+        ignore_label = 65
+        label_folder = "labels"
+    else:
+        raise ValueError("Unknown Mapillary version.%s"%version)
+            
     def __init__(self, mode, quality='semantic', joint_transform_list=None,
                  img_transform=None, label_transform=None, eval_folder=None):
 
@@ -56,8 +66,7 @@ class Loader(BaseLoader):
                                      label_transform=label_transform)
 
         root = cfg.DATASET.MAPILLARY_DIR
-        version = "v2.0"
-        config_fn = os.path.join(root, 'config_{}_dm.json'.format(version))
+        config_fn = os.path.join(root, 'config_{}.json'.format(self.version))
         self.fill_colormap_and_names(config_fn)
 
         ######################################################################
@@ -73,7 +82,7 @@ class Loader(BaseLoader):
             img_ext = 'jpg'
             mask_ext = 'png'
             img_root = os.path.join(root, split_name, 'images')
-            mask_root = os.path.join(root, split_name, version, 'labels_dm')
+            mask_root = os.path.join(root, split_name, self.version, self.label_folder)
             self.all_imgs = self.find_images(img_root, mask_root, img_ext,
                                              mask_ext)
         logx.msg('all imgs {}'.format(len(self.all_imgs)))
@@ -99,10 +108,16 @@ class Loader(BaseLoader):
         # calculate label color mapping
         colormap = []
         self.trainid_to_name = {}
+        self.id_to_trainid = {}
         
         for i in range(0, len(config_labels)):
             colormap = colormap + config_labels[i]['color']
+            # if i==24:
+            #     colormap = colormap + config_labels[i]['color']
+            # else:
+            #     colormap = colormap + [0,0,0]
             name = config_labels[i]['readable']
             name = name.replace(' ', '_')
             self.trainid_to_name[i] = name
+            self.id_to_trainid[i] = i
         self.color_mapping = colormap

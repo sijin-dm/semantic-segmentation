@@ -27,5 +27,7 @@ HPARAMS: [
 
    arch: ocrnet.HRNet_Mscale,
    n_scales: '0.5,1.0,2.0',
+
+   resume: "logs/train_mapillary/attentive-bear_2021.06.25_14.58/last_checkpoint_ep53.pth",
   }
 ]
