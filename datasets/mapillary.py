@@ -44,18 +44,20 @@ class Loader(BaseLoader):
     trainid_to_name = {}
     color_mapping = []
 
-    version = "v1.2"
+    version = "v2.0_dm"
+    config_name = 'config_{}.json'.format(version)
     if version == "v2.0_dm":
         num_classes = 29
         ignore_label = 29
         label_folder = "labels_dm"
+        version = "v2.0" # For loading mask image
     elif version == "v1.2":
         num_classes = 65
         ignore_label = 65
         label_folder = "labels"
     else:
         raise ValueError("Unknown Mapillary version.%s"%version)
-            
+    
     def __init__(self, mode, quality='semantic', joint_transform_list=None,
                  img_transform=None, label_transform=None, eval_folder=None):
 
@@ -66,7 +68,7 @@ class Loader(BaseLoader):
                                      label_transform=label_transform)
 
         root = cfg.DATASET.MAPILLARY_DIR
-        config_fn = os.path.join(root, 'config_{}.json'.format(self.version))
+        config_fn = os.path.join(root, self.config_name)
         self.fill_colormap_and_names(config_fn)
 
         ######################################################################
