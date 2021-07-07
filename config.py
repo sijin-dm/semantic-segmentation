@@ -146,6 +146,9 @@ __C.MODEL.X71_CHECKPOINT = \
     os.path.join(WEIGHTS_PATH, 'aligned_xception71.pth')
 __C.MODEL.HRNET_CHECKPOINT = \
     os.path.join(WEIGHTS_PATH, 'hrnetv2_w48_imagenet_pretrained.pth')
+__C.MODEL.DDRNET23_SLIM_CHECKPOINT = \
+    os.path.join(WEIGHTS_PATH, 'DDRNet23_slim_imagenet.pth')
+
 
 __C.LOSS = AttrDict()
 # Weight for OCR aux loss
