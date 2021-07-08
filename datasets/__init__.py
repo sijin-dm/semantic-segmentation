@@ -128,16 +128,15 @@ def setup_loaders(args):
         else:
             val_joint_transform_list = None
     elif 'mapillary' in args.dataset:
-        if args.pre_size is None:
+        if args.map_eval_size is None:
             eval_size = 2177
         else:
-            eval_size = args.pre_size
+            eval_size = args.map_eval_size
         if cfg.DATASET.MAPILLARY_CROP_VAL:
             val_joint_transform_list = [
                 joint_transforms.ResizeHeight(eval_size),
                 joint_transforms.CenterCropPad(eval_size)]
         else:
-            eval_size = 1280 # Sijin: hack for shortage of gpu memory.
             val_joint_transform_list = [
                 joint_transforms.Scale(eval_size)]
     else:

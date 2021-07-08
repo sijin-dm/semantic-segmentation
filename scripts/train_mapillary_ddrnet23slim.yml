@@ -1,25 +1,25 @@
 # Single node Mapillary training recipe
 # Requires 32GB GPU
 
-CMD: "CUDA_VISIBLE_DEVICES=1 python -m torch.distributed.launch --nproc_per_node=1 train.py"
+CMD: "python -m torch.distributed.launch --nproc_per_node=8 train.py"
 
 HPARAMS: [
   {
    dataset: mapillary,
-   map_version: "v1.2",
+   map_version: "v2.0_dm",
    cv: 0,
    result_dir: LOGDIR,
 
    pre_size: 2177,
-   crop_size: "720,1280", # H,W
-   map_eval_size: 1280,
-   
+   crop_size: "1024,1024", # H,W
+   map_eval_size: 1024,
+   map_crop_val: true,
    syncbn: true,
    apex: true,
    fp16: true,
    gblur: true,
 
-   bs_trn: 2,
+   bs_trn: 4,
 
    lr_schedule: poly,
    poly_exp: 1.0,
@@ -28,7 +28,8 @@ HPARAMS: [
    max_epoch: 200,
    rmi_loss: true,
 
-   arch: ocrnet.HRNet_Mscale,
+   arch: ocrnet.DDRNet23_Slim_Mscale,
    n_scales: '0.5,1.0,2.0',
+
   }
 ]

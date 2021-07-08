@@ -115,6 +115,7 @@ __C.DATASET.LANCZOS_SCALES = False
 # Need to use this if you want to dump images
 __C.DATASET.MAPILLARY_CROP_VAL = False
 __C.DATASET.CROP_SIZE = '896'
+__C.DATASET.MAPILLARY_VERSION = 'v1.2'
 
 __C.MODEL = AttrDict()
 __C.MODEL.BN = 'regularnorm'
@@ -359,6 +360,10 @@ def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
         __C.MODEL.GRAD_CKPT = True
 
     __C.GLOBAL_RANK = args.global_rank
+
+    if args.map_version is not None:
+        assert args.map_version == "v1.2" or args.map_version == "v2.0_dm"
+        __C.DATASET.MAPILLARY_VERSION = args.map_version
 
     if make_immutable:
         cfg.immutable(True)

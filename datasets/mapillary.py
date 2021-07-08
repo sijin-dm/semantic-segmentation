@@ -43,8 +43,7 @@ from datasets import uniform
 class Loader(BaseLoader):
     trainid_to_name = {}
     color_mapping = []
-
-    version = "v2.0_dm"
+    version = cfg.DATASET.MAPILLARY_VERSION
     config_name = 'config_{}.json'.format(version)
     if version == "v2.0_dm":
         num_classes = 29

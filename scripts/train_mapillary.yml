@@ -6,11 +6,13 @@ CMD: "CUDA_VISIBLE_DEVICES=4,5,6,7 python -m torch.distributed.launch --nproc_pe
 HPARAMS: [
   {
    dataset: mapillary,
+   map_version: "v1.2",
    cv: 0,
    result_dir: LOGDIR,
 
    pre_size: 2177,
    crop_size: "720,1280", # H,W
+   map_eval_size: 1280,
    syncbn: true,
    apex: true,
    fp16: true,
@@ -27,7 +29,6 @@ HPARAMS: [
 
    arch: ocrnet.HRNet_Mscale,
    n_scales: '0.5,1.0,2.0',
-
-   resume: "logs/train_mapillary/attentive-bear_2021.06.25_14.58/last_checkpoint_ep53.pth",
+  #  resume: "logs/train_mapillary/prophetic-cockle_2021.06.30_11.06/last_checkpoint_ep55.pth",
   }
 ]
