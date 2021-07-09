@@ -19,7 +19,7 @@ HPARAMS: [
    fp16: true,
    gblur: true,
 
-   bs_trn: 4,
+   bs_trn: 8,
 
    lr_schedule: poly,
    poly_exp: 1.0,
