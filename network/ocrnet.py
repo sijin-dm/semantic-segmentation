@@ -341,5 +341,8 @@ def HRNet(num_classes, criterion):
 def HRNet_Mscale(num_classes, criterion):
     return MscaleOCR(num_classes, trunk='hrnetv2', criterion=criterion)
 
+def DDRNet23_Slim(num_classes, criterion):
+    return OCRNet(num_classes, trunk='ddrnet_23_slim', criterion=criterion)
+
 def DDRNet23_Slim_Mscale(num_classes, criterion):
     return MscaleOCR(num_classes, trunk='ddrnet_23_slim', criterion=criterion)
