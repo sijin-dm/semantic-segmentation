@@ -37,23 +37,16 @@ import sys
 import time
 import torch
 
-from apex import amp
+
 from runx.logx import logx
 from config import assert_and_infer_cfg, update_epoch, cfg
-from loss.utils import get_loss
 from loss.optimizer import get_optimizer, restore_opt, restore_net
 
 import datasets
 import network
-
 from torch2trt import trt, torch2trt
-# Import autoresume module
 sys.path.append(os.environ.get('SUBMIT_SCRIPTS', '.'))
-AutoResume = None
-try:
-    from userlib.auto_resume import AutoResume
-except ImportError:
-    print(AutoResume)
+
 
 # Argument Parser
 parser = argparse.ArgumentParser(description='Semantic Segmentation')
@@ -459,8 +452,6 @@ def main():
     """
     Main Function
     """
-    if AutoResume:
-        AutoResume.init()
 
     assert args.result_dir is not None, 'need to define result_dir arg'
     logx.initialize(logdir=args.result_dir,
@@ -470,16 +461,13 @@ def main():
 
     # Set up the Arguments, Tensorboard Writer, Dataloader, Loss Fn, Optimizer
     assert_and_infer_cfg(args)
-    # prep_experiment(args)
 
     logx.msg("Saving to: {}".format(cfg.RESULT_DIR))
     train_loader, val_loader, train_obj = \
         datasets.setup_loaders(args)
-    criterion, criterion_val = get_loss(args)
 
     auto_resume_details = None
-    if AutoResume:
-        auto_resume_details = AutoResume.get_resume_details()
+
 
     if auto_resume_details:
         checkpoint_fn = auto_resume_details.get("RESUME_FILE", None)
@@ -512,9 +500,6 @@ def main():
 
     net = network.get_net(args, None)
     optim, scheduler = get_optimizer(args, net)
-
-    if args.fp16:
-        net, optim = amp.initialize(net, optim, opt_level=args.amp_opt_level)
 
     net = network.wrap_network_in_dataparallel(net, args.apex)
 
