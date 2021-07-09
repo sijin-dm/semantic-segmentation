@@ -1,0 +1,23 @@
+# Convert model to tensorrt engine.
+
+CMD: "CUDA_VISIBLE_DEVICES=1 python -m torch.distributed.launch --nproc_per_node=1 --master_port 2956 pytorch2trt.py "
+
+HPARAMS: [
+  {
+   dataset: mapillary,
+   map_version: "v2.0_dm",
+   crop_size: "384,768",
+   cv: 0,
+   syncbn: true,
+   apex: true,
+   fp16: true,
+   bs_val: 1,
+   eval: folder,
+   eval_folder: '/mnt/nas/share-map/common/DMCar/rawdata/20210705024852/images_gap3',
+   dump_assets: true,
+   dump_all_images: true,
+   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
+   arch: ocrnet_trt.DDRNet23_Slim,
+   result_dir: LOGDIR,
+  },
+]

@@ -121,8 +121,11 @@ def setup_loaders(args):
         target_train_transform = extended_transforms.MaskToTensor()
 
     if args.eval == 'folder':
-        if args.pre_size is not None: 
-            print("Using pre_size: {}".format(args.pre_size))
+        if args.crop_size is not None:
+            logx.msg("Using crop_size: {}".format(args.crop_size))
+            val_joint_transform_list = [joint_transforms.CenterCrop(args.crop_size)]
+        elif args.pre_size is not None: 
+            logx.msg("Using pre_size: {}".format(args.pre_size))
             val_joint_transform_list = [
                 joint_transforms.Scale(args.pre_size )]
         else:
