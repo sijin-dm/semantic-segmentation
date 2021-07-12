@@ -1,0 +1,1 @@
+docker build -t xavier-seg-trt -f Dockerfile.xavier .

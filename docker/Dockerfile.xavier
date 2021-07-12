@@ -1,0 +1,33 @@
+# Befoore building this docker image, please make sure the following line has been put in "/etc/docker/daemon.json".
+# "default-runtime": "nvidia"
+
+FROM nvcr.io/nvidia/l4t-ml:r32.5.0-py3
+
+# To avoid tzdata asking for geographic location...
+ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        software-properties-common \
+        autoconf \
+        automake \
+        build-essential \
+        cmake \
+        git \
+        python3-pip \
+        zlib1g-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+
+RUN pip3 install runx==0.0.6 \
+    scikit-image==0.15.0
+
+RUN git clone https://github.com/NVIDIA/apex && cd apex && \
+    pip3 install -v --disable-pip-version-check --no-cache-dir \
+    --global-option="--cpp_ext" --global-option="--cuda_ext" ./
+
+RUN git clone https://ac22f345e18f19e2e959cc2b6b82525780cc9d99@github.com/sijin-dm/torch2trt.git && \
+   cd torch2trt && \
+   python3 setup.py install --plugins && \
+   cd .. && rm -rf torch2trt
