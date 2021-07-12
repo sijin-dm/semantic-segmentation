@@ -193,6 +193,9 @@ __C.MODEL.OCR_EXTRA.STAGE4.NUM_BLOCKS = [4, 4, 4, 4]
 __C.MODEL.OCR_EXTRA.STAGE4.NUM_CHANNELS = [48, 96, 192, 384]
 __C.MODEL.OCR_EXTRA.STAGE4.FUSE_METHOD = 'SUM'
 
+__C.MODEL.DDRNET23 = AttrDict()
+__C.MODEL.DDRNET23.AUGMENT = False
+__C.MODEL.DDRNET23.BALANCE_WEIGHTS = [1.0, 0.4]
 
 def torch_version_float():
     version_str = torch.__version__
@@ -364,6 +367,8 @@ def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
     if args.map_version is not None:
         assert args.map_version == "v1.2" or args.map_version == "v2.0_dm"
         __C.DATASET.MAPILLARY_VERSION = args.map_version
+
+    __C.MODEL.DDRNET23.AUGMENT = args.ddrnet_augment
 
     if make_immutable:
         cfg.immutable(True)

@@ -272,15 +272,17 @@ class DualResNet(nn.Module):
                  planes=64,
                  spp_planes=128,
                  head_planes=128,
-                 augment=True,
+                 augment=False,
                  is_backbone=True,
-                 criterion = None):
+                 criterion=None,
+                 balance_weights=None):
         super(DualResNet, self).__init__()
 
         highres_planes = planes * 2
         self.augment = augment
         self.is_backbone = is_backbone
         self.criterion = criterion
+        self.balance_weights = balance_weights
         self.conv1 = nn.Sequential(
             nn.Conv2d(3, planes, kernel_size=3, stride=2, padding=1),
             BatchNorm2d(planes, momentum=bn_mom),
@@ -362,27 +364,19 @@ class DualResNet(nn.Module):
 
         self.spp = DAPPM(planes * 16, spp_planes, planes * 4)
 
-        # if self.augment:
-        #     self.seghead_extra = segmenthead(highres_planes, head_planes, num_classes)
+        if self.augment:
+            self.seghead_extra = segmenthead(highres_planes, head_planes,
+                                             num_classes)
 
-        self.final_layer = segmenthead(planes * 4, head_planes, num_classes)
-
-        # for m in self.modules():
-        #     if isinstance(m, nn.Conv2d):
-        #         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-        #     elif isinstance(m, BatchNorm2d):
-        #         nn.init.constant_(m.weight, 1)
-        #         nn.init.constant_(m.bias, 0)
+        if not self.is_backbone:
+            self.final_layer = segmenthead(planes * 4, head_planes,
+                                           num_classes)
 
         for name, m in self.named_modules():
-            # if any(part in name for part in {'cls', 'aux', 'ocr'}):
-            #     # print('skipped', name)
-            #     continue
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight,
                                         mode='fan_out',
                                         nonlinearity='relu')
-                # nn.init.normal_(m.weight, std=0.001)
             elif isinstance(m, cfg.MODEL.BNFUNC):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
@@ -458,32 +452,35 @@ class DualResNet(nn.Module):
         if self.is_backbone:
             return None, None, x
         x_ = self.final_layer(x)
+        x_ = scale_as(x_, inputs['images'])
 
-        if self.training:
-            cls_out = scale_as(x_, inputs['images'])
-            gts = inputs['gts']
-          
-            # aux_loss = self.criterion(aux_out, gts,
-            #                           do_rmi=cfg.LOSS.OCR_AUX_RMI)
-            main_loss = self.criterion(cls_out, gts)
-            # loss = cfg.LOSS.OCR_ALPHA * aux_loss + main_loss
-            return main_loss
-        else:
-            output_dict = {'pred': x_}
-            return output_dict
-
-        # TODO(sijin): add augment training.
         if self.augment:
             x_extra = self.seghead_extra(temp)
-            return [x_extra, x_]
+            x_extra = scale_as(x_extra, inputs['images'])
+
+        if self.training:
+            gts = inputs['gts']
+            if self.augment:
+                # TODO: dynamic weighting.
+                loss = self.balance_weights[0] * self.criterion(
+                    x_extra, gts) + self.balance_weights[1] * self.criterion(
+                        x_, gts)
+            else:
+                loss = self.criterion(x_, gts)
+            return loss
         else:
-            return x_
+            if self.augment:
+                output_dict = {'pred': x_ + x_extra}
+            else:
+                output_dict = {'pred': x_}
+            return output_dict
 
 
 def DualResNet_imagenet(num_classes=19,
                         criterion=None,
                         is_backbone=False,
-                        augment=False):
+                        augment=False,
+                        balance_weights = None):
     model = DualResNet(BasicBlock, [2, 2, 2, 2],
                        num_classes=num_classes,
                        planes=32,
@@ -491,7 +488,8 @@ def DualResNet_imagenet(num_classes=19,
                        head_planes=64,
                        augment=augment,
                        is_backbone=is_backbone,
-                       criterion = criterion)
+                       criterion=criterion,
+                       balance_weights = balance_weights)
     if os.path.isfile(cfg.MODEL.DDRNET23_SLIM_CHECKPOINT):
         logx.msg('=> loading pretrained model {}'.format(
             cfg.MODEL.DDRNET23_SLIM_CHECKPOINT))
@@ -514,9 +512,12 @@ def get_seg_model():
 
 
 def DDRNet23_Slim(num_classes, criterion):
-    return DualResNet_imagenet(num_classes,
-                               criterion=criterion,
-                               is_backbone=False)
+    return DualResNet_imagenet(
+        num_classes,
+        criterion=criterion,
+        is_backbone=False,
+        augment=cfg.MODEL.DDRNET23.AUGMENT,
+        balance_weights=cfg.MODEL.DDRNET23.BALANCE_WEIGHTS)
 
 
 if __name__ == '__main__':

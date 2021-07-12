@@ -272,6 +272,8 @@ parser.add_argument('--map_version', type=str, default=None,
                     help='mapillary version.')
 parser.add_argument('--map_eval_size', type=int, default=None,
                     help='mapillary evaluation size.')
+parser.add_argument('--ddrnet_augment', action='store_true', default=False,
+                    help='use multi output for ddrnet.')
 
 args = parser.parse_args()
 args.best_record = {'epoch': -1, 'iter': 0, 'val_loss': 1e10, 'acc': 0,
