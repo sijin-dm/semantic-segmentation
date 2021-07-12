@@ -407,7 +407,9 @@ parser.add_argument('--map_eval_size',
                     type=int,
                     default=None,
                     help='mapillary evaluation size.')
-
+parser.add_argument('--ddrnet_augment', action='store_true', default=False,
+                    help='use multi output for ddrnet.')
+                    
 args = parser.parse_args()
 args.best_record = {
     'epoch': -1,
@@ -542,7 +544,7 @@ def main():
         model_trt = torch2trt(
             model,
             [x],
-            fp16_mode=False,
+            fp16_mode=True,
             log_level=trt.Logger.ERROR  # VERBOSE
         )
         y = model(x)
@@ -554,13 +556,13 @@ def main():
             used_time = time.time() - start_time
             if i > 2:
                 time_list.append(used_time)
-
-        save_pred(y, "color_mask.png")
-        save_pred(y_trt, "color_mask_trt.png")
+            print(used_time)
 
         average_time = torch.FloatTensor(time_list).mean()
         logx.msg("time: {} fps: {} diff: {}".format(
             average_time, 1. / average_time, torch.max(torch.abs(y - y_trt))))
+        save_pred(y, "color_mask.png")
+        save_pred(y_trt, "color_mask_trt.png")
     return
 
 
