@@ -37,7 +37,6 @@ import sys
 import time
 import torch
 
-
 from runx.logx import logx
 from config import assert_and_infer_cfg, update_epoch, cfg
 from loss.optimizer import get_optimizer, restore_opt, restore_net
@@ -45,8 +44,8 @@ from loss.optimizer import get_optimizer, restore_opt, restore_net
 import datasets
 import network
 from torch2trt import trt, torch2trt
-sys.path.append(os.environ.get('SUBMIT_SCRIPTS', '.'))
 
+sys.path.append(os.environ.get('SUBMIT_SCRIPTS', '.'))
 
 # Argument Parser
 parser = argparse.ArgumentParser(description='Semantic Segmentation')
@@ -407,9 +406,11 @@ parser.add_argument('--map_eval_size',
                     type=int,
                     default=None,
                     help='mapillary evaluation size.')
-parser.add_argument('--ddrnet_augment', action='store_true', default=False,
+parser.add_argument('--ddrnet_augment',
+                    action='store_true',
+                    default=False,
                     help='use multi output for ddrnet.')
-                    
+
 args = parser.parse_args()
 args.best_record = {
     'epoch': -1,
@@ -469,7 +470,6 @@ def main():
         datasets.setup_loaders(args)
 
     auto_resume_details = None
-
 
     if auto_resume_details:
         checkpoint_fn = auto_resume_details.get("RESUME_FILE", None)
@@ -533,7 +533,7 @@ def main():
 
     def save_pred(y, out_name="color_mask.png"):
         colorize_mask_fn = cfg.DATASET_INST.colorize_mask
-        output = torch.nn.functional.softmax(y_trt, dim=1)
+        output = torch.nn.functional.softmax(y, dim=1)
         prob_mask, predictions = output.data.max(1)
         # Image.fromarray(predictions[0].cpu().numpy().astype(np.uint8)).convert('P').save("label_id.png")
         color_mask = colorize_mask_fn(predictions[0].cpu().numpy())
@@ -544,11 +544,15 @@ def main():
         model_trt = torch2trt(
             model,
             [x],
+            input_names=["input"],
+            output_names=["output"],
             fp16_mode=True,
             log_level=trt.Logger.ERROR  # VERBOSE
         )
+        save_engine(model_trt, '{}_trt.engine'.format(args.arch))
+        torch.save(model_trt.state_dict(), '{}_trt.pth'.format(args.arch))
+
         y = model(x)
-        save_engine(model_trt)
         time_list = []
         for i in range(10):
             start_time = time.time()
