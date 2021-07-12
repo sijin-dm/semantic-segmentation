@@ -41,6 +41,7 @@ from runx.logx import logx
 from config import assert_and_infer_cfg, update_epoch, cfg
 from loss.optimizer import get_optimizer, restore_opt, restore_net
 
+import torch.nn as nn
 import datasets
 import network
 from torch2trt import trt, torch2trt
@@ -450,6 +451,18 @@ def save_engine(model, name='ddrnet23_slim_trt.engine'):
     with open(name, 'wb') as f:
         f.write(model.engine.serialize())
 
+class FullModel(nn.Module):
+    def __init__(self, model):
+        super(FullModel, self).__init__()
+        self.model = model
+
+    def forward(self, inputs):
+        x = self.model(inputs)
+        x = torch.nn.functional.softmax(x, dim=1)
+        # TODO: onnx can deal with torch.max.
+        # prob_mask, predictions = x.data.max(1)
+        return x
+
 
 def main():
     """
@@ -510,6 +523,7 @@ def main():
 
     torch.cuda.empty_cache()
 
+    net = FullModel(net)
     model = net.eval()
 
     import numpy as np
@@ -521,13 +535,10 @@ def main():
         standard_transforms.Normalize(*mean_std)
     ])
 
-
-
     def save_pred(pred, out_name="color_mask.png"):
         colorize_mask_fn = cfg.DATASET_INST.colorize_mask
-        output = torch.nn.functional.softmax(pred, dim=1)
-        prob_mask, predictions = output.data.max(1)
         # Image.fromarray(predictions[0].cpu().numpy().astype(np.uint8)).convert('P').save("label_id.png")
+        prob_mask, predictions = pred.data.max(1)
         color_mask = colorize_mask_fn(predictions[0].cpu().numpy())
         color_mask.save(out_name)
         logx.msg("Saving prediction to {}".format(out_name))
