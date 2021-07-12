@@ -27,7 +27,7 @@ RUN git clone https://github.com/NVIDIA/apex && cd apex && \
     pip3 install -v --disable-pip-version-check --no-cache-dir \
     --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 
-RUN git clone https://ac22f345e18f19e2e959cc2b6b82525780cc9d99@github.com/sijin-dm/torch2trt.git && \
+RUN git clone https://github.com/sijin-dm/torch2trt.git && \
    cd torch2trt && \
    python3 setup.py install --plugins && \
    cd .. && rm -rf torch2trt
