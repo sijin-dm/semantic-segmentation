@@ -144,7 +144,10 @@ def forgiving_state_restore(net, loaded_dict):
     net_state_dict = net.state_dict()
     new_loaded_dict = {}
     for k in net_state_dict:
-        new_k = k
+        if not k.startswith("module."):
+            new_k = "module."+k
+        else:
+            new_k = k
         if new_k in loaded_dict and net_state_dict[k].size() == loaded_dict[new_k].size():
             new_loaded_dict[k] = loaded_dict[new_k]
         else:            

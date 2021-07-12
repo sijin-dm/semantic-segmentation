@@ -501,12 +501,7 @@ def main():
         logx.msg(msg)
 
     net = network.get_net(args, None)
-    optim, scheduler = get_optimizer(args, net)
 
-    net = network.wrap_network_in_dataparallel(net, args.apex)
-
-    if args.restore_optimizer:
-        restore_opt(optim, checkpoint)
     if args.restore_net:
         restore_net(net, checkpoint)
 
@@ -526,14 +521,11 @@ def main():
         standard_transforms.Normalize(*mean_std)
     ])
 
-    img = Image.open("imgs/test_imgs/sf.jpg").convert('RGB')
-    img = img.resize((768, 384))
-    assert img is not None
-    x = val_input_transform(img).cuda().unsqueeze(0)
 
-    def save_pred(y, out_name="color_mask.png"):
+
+    def save_pred(pred, out_name="color_mask.png"):
         colorize_mask_fn = cfg.DATASET_INST.colorize_mask
-        output = torch.nn.functional.softmax(y, dim=1)
+        output = torch.nn.functional.softmax(pred, dim=1)
         prob_mask, predictions = output.data.max(1)
         # Image.fromarray(predictions[0].cpu().numpy().astype(np.uint8)).convert('P').save("label_id.png")
         color_mask = colorize_mask_fn(predictions[0].cpu().numpy())
@@ -541,6 +533,7 @@ def main():
         logx.msg("Saving prediction to {}".format(out_name))
 
     with torch.no_grad():
+        x = torch.randn(1,3, 384,768).cuda()
         model_trt = torch2trt(
             model,
             [x],
@@ -551,6 +544,11 @@ def main():
         )
         save_engine(model_trt, '{}_trt.engine'.format(args.arch))
         torch.save(model_trt.state_dict(), '{}_trt.pth'.format(args.arch))
+
+        img = Image.open("imgs/test_imgs/sf.jpg").convert('RGB')
+        img = img.resize((768, 384))
+        assert img is not None
+        x = val_input_transform(img).cuda().unsqueeze(0)
 
         y = model(x)
         time_list = []
