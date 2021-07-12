@@ -31,6 +31,8 @@ def arg_parse():
     parser.add_argument('--save', action='store_true', default=False)
     parser.add_argument('--model_name', type=str, default='ocrnet_trt.DDRNet23_Slim_trt.pth')
     parser.add_argument('--img_folder', type=str, default='imgs/test_imgs')
+    parser.add_argument('--output_path', type=str, default="output")
+
     args = parser.parse_args()
 
     return args
@@ -66,6 +68,9 @@ def main():
 
     model_trt = get_trt_model(args.model_name)
     
+    if args.save:
+        os.makedirs(args.output_path, exist_ok=True)
+
     for  input_images, _, img_names, _ in val_set:
         x = input_images.cuda().unsqueeze(0)
         start_time = time.time()
@@ -73,9 +78,12 @@ def main():
         used_time = time.time() - start_time
         print(img_names, input_images.shape, used_time)
 
+        start_time = time.time()
         color_mask = get_color_mask(y_trt, val_set.colorize_mask)
+        used_time = time.time() - start_time
+        print("post proc time: ", used_time)
         if args.save:
-            color_mask.save("{}_pred.png".format(img_names))
+            color_mask.save("{}/{}_pred.png".format(args.output_path, img_names))
         else:
             cv_img = np.asarray(color_mask.convert('RGB'))
             cv_img = cv2.cvtColor(cv_img,cv2.COLOR_RGB2BGR)
