@@ -1,0 +1,23 @@
+# Convert model to tensorrt engine.
+
+CMD: "CUDA_VISIBLE_DEVICES=0 python3 pytorch2onnx.py "
+
+HPARAMS: [
+  {
+   dataset: mapillary,
+   map_version: "v2.0_dm",
+   crop_size: "384,768",
+   cv: 0,
+   syncbn: false,
+   apex: false,
+   fp16: false,
+   bs_val: 1,
+   eval: folder,
+   eval_folder: 'imgs/test_imgs',
+   dump_assets: true,
+   dump_all_images: true,
+   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
+   arch: ocrnet_trt.DDRNet23_Slim,
+   result_dir: LOGDIR,
+  },
+]
