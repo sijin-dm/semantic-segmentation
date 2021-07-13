@@ -459,8 +459,6 @@ class FullModel(nn.Module):
     def forward(self, inputs):
         x = self.model(inputs)
         x = torch.nn.functional.softmax(x, dim=1)
-        # TODO: onnx can deal with torch.max.
-        # prob_mask, predictions = x.data.max(1)
         return x
 
 
@@ -550,6 +548,7 @@ def main():
             [x],
             input_names=["input"],
             output_names=["output"],
+            max_workspace_size = 1 << 20,
             fp16_mode=True,
             log_level=trt.Logger.ERROR  # VERBOSE
         )
