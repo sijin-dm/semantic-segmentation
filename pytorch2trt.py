@@ -452,6 +452,26 @@ def save_engine(model, name='ddrnet23_slim_trt.engine'):
         f.write(model.engine.serialize())
 
 
+def network_to_half(model):
+    """
+    Convert model to half precision in a batchnorm-safe way.
+    """
+    return model.half()
+
+    def bn_to_float(module):
+        """
+        BatchNorm layers need parameters in single precision. Find all layers and convert
+        them back to float.
+        """
+        if isinstance(module, torch.nn.modules.batchnorm._BatchNorm):
+            module.float()
+        for child in module.children():
+            bn_to_float(child)
+        return module
+
+    return bn_to_float(model.half())
+
+
 class FullModel(nn.Module):
     def __init__(self, model):
         super(FullModel, self).__init__()
@@ -525,6 +545,7 @@ def main():
 
     net = FullModel(net)
     model = net.eval()
+    # model = network_to_half(model)
 
     import numpy as np
     from PIL import Image
@@ -538,7 +559,11 @@ def main():
     def save_pred(pred, out_name="color_mask.png"):
         colorize_mask_fn = cfg.DATASET_INST.colorize_mask
         # Image.fromarray(predictions[0].cpu().numpy().astype(np.uint8)).convert('P').save("label_id.png")
-        prob_mask, predictions = pred
+        if len(pred) == 2:
+            _, predictions = pred
+        else:
+            predictions = pred
+
         if len(predictions.shape) == 4:
             predictions = predictions.squeeze(0).squeeze(0)
         elif len(predictions.shape) == 3:
@@ -552,9 +577,9 @@ def main():
         model_trt = torch2trt(
             model,
             [x],
-            # max_workspace_size = 1 << 20,
+            # max_workspace_size = 1 << 25,  # 1G
             fp16_mode=True,
-            log_level=trt.Logger.ERROR  # VERBOSE
+            log_level=trt.Logger.VERBOSE  # VERBOSE
         )
         save_engine(model_trt, '{}_trt.engine'.format(args.arch))
         torch.save(model_trt.state_dict(), '{}_trt.pth'.format(args.arch))

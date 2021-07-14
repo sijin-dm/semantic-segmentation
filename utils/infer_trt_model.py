@@ -24,8 +24,12 @@ def get_trt_model(name):
 
 
 def get_color_mask(y, colorize_mask_fn):
-    output = torch.nn.functional.softmax(y, dim=1)
-    prob_mask, predictions = output.data.max(1)
+    # stime = time.time()
+    # y_cpu  = y.cpu().numpy()
+    # print("gpu->cpu time: ",  time.time() - stime)
+    # output = torch.nn.functional.softmax(y, dim=1)
+    # prob_mask, predictions = output.data.max(1)
+    predictions = y
     color_mask = colorize_mask_fn(predictions[0].cpu().numpy())
     return color_mask
 
