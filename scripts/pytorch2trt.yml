@@ -16,8 +16,9 @@ HPARAMS: [
    eval_folder: 'imgs/test_imgs',
    dump_assets: true,
    dump_all_images: true,
-   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
-   arch: ocrnet_trt.DDRNet23_Slim,
+  #  snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
+   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim/tentacled-chipmunk_2021.07.12_11.20/best_checkpoint_ep183.pth",
+   arch: ddrnet_23_slim_trt.DDRNet23_Slim,
    result_dir: LOGDIR,
   },
 ]
