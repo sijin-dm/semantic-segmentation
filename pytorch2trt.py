@@ -451,6 +451,7 @@ def save_engine(model, name='ddrnet23_slim_trt.engine'):
     with open(name, 'wb') as f:
         f.write(model.engine.serialize())
 
+
 class FullModel(nn.Module):
     def __init__(self, model):
         super(FullModel, self).__init__()
@@ -459,7 +460,8 @@ class FullModel(nn.Module):
     def forward(self, inputs):
         x = self.model(inputs)
         x = torch.nn.functional.softmax(x, dim=1)
-        return x
+        prob_mask, predictions = torch.max(x, dim=1)
+        return prob_mask, predictions
 
 
 def main():
@@ -536,19 +538,21 @@ def main():
     def save_pred(pred, out_name="color_mask.png"):
         colorize_mask_fn = cfg.DATASET_INST.colorize_mask
         # Image.fromarray(predictions[0].cpu().numpy().astype(np.uint8)).convert('P').save("label_id.png")
-        prob_mask, predictions = pred.data.max(1)
-        color_mask = colorize_mask_fn(predictions[0].cpu().numpy())
+        prob_mask, predictions = pred
+        if len(predictions.shape) == 4:
+            predictions = predictions.squeeze(0).squeeze(0)
+        elif len(predictions.shape) == 3:
+            predictions = predictions.squeeze(0)
+        color_mask = colorize_mask_fn(predictions.cpu().numpy())
         color_mask.save(out_name)
         logx.msg("Saving prediction to {}".format(out_name))
 
     with torch.no_grad():
-        x = torch.randn(1,3, 384,768).cuda()
+        x = torch.randn(1, 3, 384, 768).cuda()
         model_trt = torch2trt(
             model,
             [x],
-            input_names=["input"],
-            output_names=["output"],
-            max_workspace_size = 1 << 20,
+            # max_workspace_size = 1 << 20,
             fp16_mode=True,
             log_level=trt.Logger.ERROR  # VERBOSE
         )
@@ -572,7 +576,8 @@ def main():
 
         average_time = torch.FloatTensor(time_list).mean()
         logx.msg("time: {} fps: {} diff: {}".format(
-            average_time, 1. / average_time, torch.max(torch.abs(y - y_trt))))
+            average_time, 1. / average_time,
+            torch.max(torch.abs(y[0].flatten() - y_trt[0].flatten()))))
         save_pred(y, "color_mask.png")
         save_pred(y_trt, "color_mask_trt.png")
     return
