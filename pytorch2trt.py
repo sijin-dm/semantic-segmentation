@@ -45,6 +45,7 @@ import torch.nn as nn
 import datasets
 import network
 from torch2trt import trt, torch2trt
+from ptflops import get_model_complexity_info
 
 sys.path.append(os.environ.get('SUBMIT_SCRIPTS', '.'))
 
@@ -574,6 +575,11 @@ def main():
 
     with torch.no_grad():
         x = torch.randn(1, 3, 384, 768).cuda()
+        macs, params = get_model_complexity_info(model, (3, 384, 768), as_strings=True,
+                                           print_per_layer_stat=True, verbose=True)
+        print('{:<30}  {:<8}'.format('Computational complexity: ', macs))
+        print('{:<30}  {:<8}'.format('Number of parameters: ', params))
+        
         model_trt = torch2trt(
             model,
             [x],
