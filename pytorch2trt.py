@@ -45,7 +45,7 @@ import torch.nn as nn
 import datasets
 import network
 from torch2trt import trt, torch2trt
-from ptflops import get_model_complexity_info
+# from ptflops import get_model_complexity_info
 
 sys.path.append(os.environ.get('SUBMIT_SCRIPTS', '.'))
 
@@ -573,12 +573,10 @@ def main():
         color_mask.save(out_name)
         logx.msg("Saving prediction to {}".format(out_name))
 
+    input_h, input_w = args.crop_size
+    logx.msg("Using crop size: {}".format(args.crop_size))
     with torch.no_grad():
-        x = torch.randn(1, 3, 384, 768).cuda()
-        macs, params = get_model_complexity_info(model, (3, 384, 768), as_strings=True,
-                                           print_per_layer_stat=True, verbose=True)
-        print('{:<30}  {:<8}'.format('Computational complexity: ', macs))
-        print('{:<30}  {:<8}'.format('Number of parameters: ', params))
+        x = torch.randn(1, 3, input_h, input_w).cuda()
         
         model_trt = torch2trt(
             model,
@@ -591,7 +589,7 @@ def main():
         torch.save(model_trt.state_dict(), '{}_trt.pth'.format(args.arch))
 
         img = Image.open("imgs/test_imgs/sf.jpg").convert('RGB')
-        img = img.resize((768, 384))
+        img = img.resize((input_w, input_h))
         assert img is not None
         x = val_input_transform(img).cuda().unsqueeze(0)
 

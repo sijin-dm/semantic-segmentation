@@ -24,13 +24,10 @@ def get_trt_model(name):
 
 
 def get_color_mask(y, colorize_mask_fn):
-    # stime = time.time()
-    # y_cpu  = y.cpu().numpy()
-    # print("gpu->cpu time: ",  time.time() - stime)
-    # output = torch.nn.functional.softmax(y, dim=1)
-    # prob_mask, predictions = output.data.max(1)
-    predictions = y
-    color_mask = colorize_mask_fn(predictions[0].cpu().numpy())
+    # prob_mask, predictions = y.data.max(1)
+    prob_mask, predictions = y
+    predictions = predictions.cpu().squeeze(0).squeeze(0).numpy()
+    color_mask = colorize_mask_fn(predictions)
     return color_mask
 
 
@@ -51,7 +48,8 @@ def arg_parse():
 def main():
     args = arg_parse()
 
-    eval_size = (384, 768)
+    # eval_size = (384, 768)
+    eval_size = (720, 1280)
 
     # Update dataset version.
     cfg.immutable(False)
@@ -85,13 +83,9 @@ def main():
         x = input_images.cuda().unsqueeze(0)
         start_time = time.time()
         y_trt = model_trt(x)
-        used_time = time.time() - start_time
-        print(img_names, input_images.shape, used_time)
-
-        start_time = time.time()
         color_mask = get_color_mask(y_trt, val_set.colorize_mask)
         used_time = time.time() - start_time
-        print("post proc time: ", used_time)
+        print("Inference time: ", used_time)
         if args.save:
             color_mask.save("{}/{}_pred_trt.png".format(
                 args.output_path, img_names))
