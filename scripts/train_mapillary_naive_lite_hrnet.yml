@@ -1,0 +1,32 @@
+CMD: "python -m torch.distributed.launch --nproc_per_node=8 train.py"
+
+HPARAMS: [
+  {
+   dataset: mapillary,
+   map_version: "v2.0_dm",
+   cv: 0,
+   result_dir: LOGDIR,
+
+   pre_size: 2177,
+   crop_size: "1024,1024", # H,W
+   map_eval_size: 1024,
+   map_crop_val: true,
+   syncbn: true,
+   apex: true,
+   fp16: true,
+   gblur: true,
+
+   bs_trn: 20,
+
+   lr_schedule: poly,
+   poly_exp: 1.0,
+   optimizer: sgd,
+   lr: 5e-3,
+   max_epoch: 200,
+   rmi_loss: true,
+
+   arch: ocrnet.NaiveLiteHRNet_Mscale,
+   n_scales: '0.5,1.0,2.0',
+
+  }
+]

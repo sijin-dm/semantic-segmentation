@@ -768,6 +768,7 @@ class LiteHRNet(nn.Module):
                 conv_cfg=self.conv_cfg,
                 norm_cfg=self.norm_cfg,
             )
+        self.init_weights()
 
     def _make_transition_layer(self, num_channels_pre_layer,
                                num_channels_cur_layer):
