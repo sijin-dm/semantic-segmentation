@@ -337,3 +337,15 @@ def HRNetW18(num_classes, criterion):
 
 def HRNetW18_Mscale(num_classes, criterion):
     return MscaleOCR(num_classes, trunk='hrnetv2_w18', criterion=criterion)
+
+def LiteHRNet(num_classes, criterion):
+    return OCRNet(num_classes, trunk='lite_hrnet', criterion=criterion)
+
+def LiteHRNet_Mscale(num_classes, criterion):
+    return MscaleOCR(num_classes, trunk='lite_hrnet', criterion=criterion)
+
+def NaiveLiteHRNet(num_classes, criterion):
+    return OCRNet(num_classes, trunk='naive_lite_hrnet', criterion=criterion)
+
+def NaiveLiteHRNet_Mscale(num_classes, criterion):
+    return MscaleOCR(num_classes, trunk='naive_lite_hrnet', criterion=criterion)

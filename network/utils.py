@@ -41,6 +41,7 @@ from network.SEresnext import se_resnext50_32x4d, se_resnext101_32x4d
 from network.Resnet import resnet50, resnet101
 import network.hrnetv2 as hrnetv2
 import network.ddrnet_23_slim as ddrnet_23_slim
+from network.litehrnet import LiteHRNet
 
 from runx.logx import logx
 from config import cfg
@@ -143,6 +144,35 @@ def get_trunk(trunk_name, output_stride=8):
     elif trunk_name == 'ddrnet_23_slim':
         backbone = ddrnet_23_slim.get_seg_model()
         high_level_ch = 128
+        s2_ch = -1
+        s4_ch = -1
+    elif 'lite_hrnet' in trunk_name:
+        if trunk_name == 'lite_hrnet':
+            module_type = 'LITE'
+        elif trunk_name == 'naive_lite_hrnet':
+            module_type = 'NAIVE'   
+        cfg =dict(
+            type='LiteHRNet',
+            in_channels=3,
+            extra=dict(
+                stem=dict(stem_channels=32, out_channels=32, expand_ratio=1),
+                num_stages=3,
+                stages_spec=dict(
+                    num_modules=(2, 4, 2),
+                    num_branches=(2, 3, 4),
+                    num_blocks=(2, 2, 2),
+                    module_type=(module_type, module_type,  module_type),
+                    with_fuse=(True, True, True),
+                    reduce_ratios=(8, 8, 8),
+                    num_channels=(
+                        (40, 80),
+                        (40, 80, 160),
+                        (40, 80, 160, 320),
+                    )),
+                with_head=True,
+        ))
+        backbone = LiteHRNet(extra=cfg['extra'])
+        high_level_ch = 40
         s2_ch = -1
         s4_ch = -1
     else:

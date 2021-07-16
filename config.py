@@ -231,6 +231,9 @@ __C.MODEL.DDRNET23 = AttrDict()
 __C.MODEL.DDRNET23.AUGMENT = False
 __C.MODEL.DDRNET23.BALANCE_WEIGHTS = [1.0, 0.4]
 
+__C.MODEL.LITE_HRNET = AttrDict()
+__C.MODEL.LITE_HRNET.MODULE_TYPE = 'LITE' # 'NAIVE', 'LITE'
+
 def torch_version_float():
     version_str = torch.__version__
     version_re = re.search(r'^([0-9]+\.[0-9]+)', version_str)
