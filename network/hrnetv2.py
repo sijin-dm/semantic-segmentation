@@ -476,9 +476,19 @@ class HighResolutionNet(nn.Module):
         elif pretrained:
             raise RuntimeError('No such file {}'.format(pretrained))
 
+def update_extra():
+    cfg.immutable(False)
+    cfg.MODEL.OCR_EXTRA = cfg.MODEL.OCR_EXTRA_HR18
+    cfg.immutable(True)
 
-def get_seg_model():
+def get_seg_model(version="hrnetv2_w48"):
+    if version == "hrnetv2_w48":
+        pretrain = cfg.MODEL.HRNET_CHECKPOINT
+    elif version == "hrnetv2_w18":
+        update_extra()
+        pretrain = cfg.MODEL.HRNET_W18_CHECKPOINT
+    else:
+        raise ValueError("Unknown hrnet version.")
     model = HighResolutionNet()
-    model.init_weights()
-
+    model.init_weights(pretrained = pretrain)
     return model

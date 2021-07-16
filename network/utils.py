@@ -131,7 +131,12 @@ def get_trunk(trunk_name, output_stride=8):
         s4_ch = -1
         high_level_ch = 2048
     elif trunk_name == 'hrnetv2':
-        backbone = hrnetv2.get_seg_model()
+        backbone = hrnetv2.get_seg_model(version='hrnetv2_w48')
+        high_level_ch = backbone.high_level_ch
+        s2_ch = -1
+        s4_ch = -1
+    elif trunk_name == 'hrnetv2_w18':
+        backbone = hrnetv2.get_seg_model(version='hrnetv2_w18')
         high_level_ch = backbone.high_level_ch
         s2_ch = -1
         s4_ch = -1
