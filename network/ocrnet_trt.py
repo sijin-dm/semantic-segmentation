@@ -88,7 +88,7 @@ class OCR_block(nn.Module):
         context = self.ocr_gather_head(feats, aux_out)
         ocr_feats = self.ocr_distri_head(feats, context)
         cls_out = self.cls_head(ocr_feats)
-        return cls_out
+        return cls_out, aux_out, ocr_feats
 
 
 class OCRNet(nn.Module):
@@ -104,7 +104,8 @@ class OCRNet(nn.Module):
     def forward(self, inputs):
         x = inputs
         _, _, high_level_features = self.backbone(x)
-        cls_out = self.ocr(high_level_features)
+        cls_out, _, _ = self.ocr(high_level_features)
+        # cls_out = self.ocr(high_level_features)
         cls_out = scale_as(cls_out, x)     
         output_dict = cls_out
         return output_dict
@@ -162,14 +163,14 @@ class MscaleOCR(nn.Module):
         cls_out, aux_out, ocr_mid_feats = self.ocr(high_level_features)
         attn = self.scale_attn(ocr_mid_feats)
 
-        # aux_out = Upsample(aux_out, x_size)
+        aux_out = Upsample(aux_out, x_size)
         cls_out = Upsample(cls_out, x_size)
-        # attn = Upsample(attn, x_size)
+        attn = Upsample(attn, x_size)
 
-        return cls_out
-        # return {'cls_out': cls_out,
-        #         'aux_out': aux_out,
-        #         'logit_attn': attn}
+        # return aux_out, cls_out,attn
+        return {'cls_out': cls_out,
+                'aux_out': aux_out,
+                'logit_attn': attn}
 
     def nscale_forward(self, inputs, scales):
         """
@@ -197,7 +198,7 @@ class MscaleOCR(nn.Module):
         Output:
           If training, return loss, else return prediction + attention
         """
-        x_1x = inputs['images']
+        x_1x = inputs
 
         assert 1.0 in scales, 'expected 1.0 to be the target scale'
         # Lower resolution provides attention for higher rez predictions,
@@ -247,7 +248,7 @@ class MscaleOCR(nn.Module):
                 self.criterion(pred, gts)
             return loss
         else:
-            output_dict['pred'] = pred
+            output_dict = pred
             return output_dict
 
     def two_scale_forward(self, inputs):
@@ -259,8 +260,8 @@ class MscaleOCR(nn.Module):
         If we use attention to combine the aux outputs, then
         we can use normal weighting for aux vs. cls outputs
         """
-        assert 'images' in inputs
-        x_1x = inputs['images']
+        # assert 'images' in inputs
+        x_1x = inputs
 
         x_lo = ResizeX(x_1x, cfg.MODEL.MSCALE_LO_SCALE)
         lo_outs = self._fwd(x_lo)
@@ -307,19 +308,12 @@ class MscaleOCR(nn.Module):
                 loss += cfg.LOSS.SUPERVISED_MSCALE_WT * loss_hi
             return loss
         else:
-            output_dict = {
-                'pred': joint_pred,
-                'pred_05x': pred_05x,
-                'pred_10x': pred_10x,
-                'attn_05x': attn_05x,
-            }
-            return output_dict
+            return joint_pred
+
 
     def forward(self, inputs):
-        outs = self._fwd(inputs)
-        return outs
         
-        if cfg.MODEL.N_SCALES and not self.training:
+        if cfg.MODEL.N_SCALES and len(cfg.MODEL.N_SCALES )>2:
             return self.nscale_forward(inputs, cfg.MODEL.N_SCALES)
 
         return self.two_scale_forward(inputs)
