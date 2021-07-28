@@ -25,6 +25,9 @@ HRNet-OCR-dm-train | 2177 (flip,0.5,1.0,2.0) |0.69360286
 HRNet-OCR-dm-train  | 960 (flip,0.5,1.0,2.0) | 0.69965035
 HRNet-OCR-dm-train  | 768 (flip,0.5,1.0,2.0) | 0.6981542
 ddrnet23_slim_ocr                    | 1024 (0.5,1.0,2.0) | 0.6289
-ddrnet23_slim_ocr(use above weights w/o retrain) | 1024(1.0) | 59.44
+ddrnet23_slim_ocr(use above weights w/o retrain) | 1024(1.0) | 0.5944
 ddrnet23_slim | 1024(1.0) | 0.5391523
 ddrnet23_slim_augment |  1024(1.0) | 0.5040767
+naive_lite_hrnet_ocr               | 1024 (0.5,1.0,2.0) | 0.5454124
+lite_hrnet_ocr               | 1024 (0.5,1.0,2.0) | 0.5753439
+HRNet-OCR-dm-train-wo-rmi-loss | 2177 (flip,0.5,1.0,2.0) |0.6662466
