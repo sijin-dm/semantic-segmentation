@@ -66,6 +66,13 @@ def get_loss(args):
         weight=None, ignore_index=cfg.DATASET.IGNORE_LABEL).cuda()
     return criterion, criterion_val
 
+def get_loss_distillation():
+    if cfg.MODEL.DISTILLATION.LOSS.NAME == 'mse':
+        criterion = MSELoss(reduction=cfg.MODEL.DISTILLATION.LOSS.MSE_REDUCTION)
+    else:
+        raise ValueError("Unknown loss name for distillation")
+
+    return criterion
 
 class ImageBasedCrossEntropyLoss2d(nn.Module):
     """
@@ -350,7 +357,7 @@ class EdgeWeightedCrossEntropyLoss2d(nn.Module):
             if not self.batch_weights:
                 weights = self.calculateWeights(target_cpu[i])
                 self.nll_loss.weight = torch.Tensor(weights).cuda()
-            
+
             out = self.nll_loss(F.log_softmax(inputs[i].unsqueeze(0)),
                                                targets[i].unsqueeze(0))
             out = torch.mul(edges[i].unsqueeze(0), out)
@@ -358,4 +365,14 @@ class EdgeWeightedCrossEntropyLoss2d(nn.Module):
         return loss
 
 
+class MSELoss(nn.Module):
+    """
+    MSE Loss
+    """
+    def __init__(self, reduction="mean"):
+        super(MSELoss, self).__init__()
+        logx.msg("Using MSE Loss")
+        self.loss = nn.MSELoss(reduction="mean")
 
+    def forward(self, inputs, targets):
+        return self.loss(inputs, targets)

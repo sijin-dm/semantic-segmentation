@@ -234,6 +234,12 @@ __C.MODEL.DDRNET23.BALANCE_WEIGHTS = [1.0, 0.4]
 __C.MODEL.LITE_HRNET = AttrDict()
 __C.MODEL.LITE_HRNET.MODULE_TYPE = 'LITE' # 'NAIVE', 'LITE'
 
+__C.MODEL.DISTILLATION = AttrDict()
+__C.MODEL.DISTILLATION.ON = False
+__C.MODEL.DISTILLATION.LOSS =  AttrDict()
+__C.MODEL.DISTILLATION.LOSS.NAME = "mse"
+__C.MODEL.DISTILLATION.LOSS.MSE_REDUCTION = "mean"
+
 def torch_version_float():
     version_str = torch.__version__
     version_re = re.search(r'^([0-9]+\.[0-9]+)', version_str)
@@ -406,6 +412,8 @@ def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
         __C.DATASET.MAPILLARY_VERSION = args.map_version
 
     __C.MODEL.DDRNET23.AUGMENT = args.ddrnet_augment
+
+    __C.MODEL.DISTILLATION.ON = 'distillation' in args.arch.lower()
 
     if make_immutable:
         cfg.immutable(True)
