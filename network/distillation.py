@@ -20,6 +20,11 @@ class Distillation(nn.Module):
         self.student_net = student_net
         self.criterion = criterion
         self.weight_adapt = 10
+        self.weight_student = 1
+        if cfg.MODEL.DISTILLATION.DYNAMIC_WEIGHTING:
+            self.weight_adapt = nn.Parameter(torch.tensor(self.weight_adapt, dtype=torch.float32), requires_grad=True)
+            self.weight_student = nn.Parameter(torch.tensor(self.weight_student, dtype=torch.float32),
+                                               requires_grad=True)
 
     def forward(self, inputs):
         assert "images" in inputs
@@ -33,7 +38,11 @@ class Distillation(nn.Module):
             teacher_pred = teacher_out['pred']
 
             loss_adapt = self.criterion(teacher_pred, student_pred)
-            loss = student_loss + self.weight_adapt * loss_adapt
+            if cfg.MODEL.DISTILLATION.DYNAMIC_WEIGHTING:
+                loss = torch.exp(-self.weight_student) * student_loss + torch.exp(-self.weight_adapt) * loss_adapt
+            else:
+                loss = self.weight_student * student_loss + self.weight_adapt * loss_adapt
+
             return loss
         else:
             # student already a dict.

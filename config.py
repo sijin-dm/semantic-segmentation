@@ -236,6 +236,7 @@ __C.MODEL.LITE_HRNET.MODULE_TYPE = 'LITE' # 'NAIVE', 'LITE'
 
 __C.MODEL.DISTILLATION = AttrDict()
 __C.MODEL.DISTILLATION.ON = False
+__C.MODEL.DISTILLATION.DYNAMIC_WEIGHTING = False
 __C.MODEL.DISTILLATION.LOSS =  AttrDict()
 __C.MODEL.DISTILLATION.LOSS.NAME = "mse"
 __C.MODEL.DISTILLATION.LOSS.MSE_REDUCTION = "mean"
@@ -415,6 +416,9 @@ def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
 
     __C.MODEL.DISTILLATION.ON = 'distillation' in args.arch.lower()
 
+    if args.distillation_dynamic_weighting:
+        __C.MODEL.DISTILLATION.DYNAMIC_WEIGHTING = True
+        
     if make_immutable:
         cfg.immutable(True)
 
