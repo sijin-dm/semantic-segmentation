@@ -278,6 +278,8 @@ parser.add_argument('--distillation_dynamic_weighting', action='store_true', def
                     help='using dynamic weighting.')
 parser.add_argument('--miniset_ratio', type=float, default=None,
                     help='Ratio of mini training and validation set.')
+parser.add_argument('--mc_dropout_itr', type=int, default=None,
+                    help='Monte carlo dropout iteration.')
 
 
 

@@ -330,7 +330,11 @@ class MscaleOCR(nn.Module):
             return self.nscale_forward(inputs, cfg.MODEL.N_SCALES)
 
         return self.two_scale_forward(inputs)
-
+    
+    def forward_teacher(self, inputs):
+        if cfg.MODEL.N_SCALES and not self.training and cfg.MODEL.DISTILLATION.MONTE_CARLO_DROPOUT_ITERATION is None:
+            return self.nscale_forward(inputs, cfg.MODEL.N_SCALES)
+        return self.two_scale_forward(inputs)
 
 def HRNet(num_classes, criterion):
     return OCRNet(num_classes, trunk='hrnetv2', criterion=criterion)

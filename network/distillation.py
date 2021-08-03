@@ -12,14 +12,20 @@ from runx.logx import logx
 # 3. Spherical Knowledge Disitllation
 
 
+def enable_dropout(model):
+    """ Function to enable the dropout layers during test-time """
+    for name, m in model.named_modules():
+        if 'dropout' in m.__class__.__name__.lower():
+            m.train()
+
+
 class Distillation(nn.Module):
     def __init__(self, teacher_net, student_net, criterion=None):
         super(Distillation, self).__init__()
         self.teacher_net = teacher_net
-        # self.teacher_net.requires_grad_(False)
         self.student_net = student_net
         self.criterion = criterion
-        self.weight_adapt = 10
+        self.weight_adapt = 3
         self.weight_student = 1
         if cfg.MODEL.DISTILLATION.DYNAMIC_WEIGHTING:
             self.weight_adapt = nn.Parameter(torch.tensor(self.weight_adapt, dtype=torch.float32), requires_grad=True)
@@ -30,8 +36,24 @@ class Distillation(nn.Module):
         assert "images" in inputs
         student_out = self.student_net(inputs)
         if self.training:
+            self.teacher_net.eval()
             with torch.no_grad():
-                teacher_out = self.teacher_net(inputs)
+                if cfg.MODEL.DISTILLATION.MONTE_CARLO_DROPOUT_ITERATION is not None:
+                    assert cfg.MODEL.DISTILLATION.MONTE_CARLO_DROPOUT_ITERATION > 0
+                    enable_dropout(self.teacher_net)
+                    teacher_outs = [
+                        self.teacher_net.forward_teacher(inputs)
+                        for _ in range(cfg.MODEL.DISTILLATION.MONTE_CARLO_DROPOUT_ITERATION)
+                    ]
+
+                    teacher_out = {}
+                    for key in teacher_outs[0].keys():
+                        output_list = [out[key] for out in teacher_outs]
+                        mean_tensor = torch.stack(output_list).mean(dim=0)
+                        teacher_out[key] = mean_tensor
+                else:
+                    teacher_out = self.teacher_net(inputs)
+
             # teacher_loss = teacher_out['loss']
             student_pred = student_out['pred']
             student_loss = student_out['loss']

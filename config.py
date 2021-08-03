@@ -240,6 +240,7 @@ __C.MODEL.LITE_HRNET.MODULE_TYPE = 'LITE' # 'NAIVE', 'LITE'
 __C.MODEL.DISTILLATION = AttrDict()
 __C.MODEL.DISTILLATION.ON = False
 __C.MODEL.DISTILLATION.DYNAMIC_WEIGHTING = False
+__C.MODEL.DISTILLATION.MONTE_CARLO_DROPOUT_ITERATION = None
 __C.MODEL.DISTILLATION.LOSS =  AttrDict()
 __C.MODEL.DISTILLATION.LOSS.NAME = "mse"
 __C.MODEL.DISTILLATION.LOSS.MSE_REDUCTION = "mean"
@@ -424,7 +425,11 @@ def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
     
     if args.miniset_ratio is not None:
         __C.DATASET.MINISET_RATIO = args.miniset_ratio
-        
+ 
+    if args.mc_dropout_itr is not None:
+        __C.MODEL.DISTILLATION.MONTE_CARLO_DROPOUT_ITERATION = args.mc_dropout_itr   
+    
+    
     if make_immutable:
         cfg.immutable(True)
 
