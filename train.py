@@ -275,7 +275,11 @@ parser.add_argument('--map_eval_size', type=int, default=None,
 parser.add_argument('--ddrnet_augment', action='store_true', default=False,
                     help='use multi output for ddrnet.')
 parser.add_argument('--distillation_dynamic_weighting', action='store_true', default=False,
-                    help='use multi output for ddrnet.')
+                    help='using dynamic weighting.')
+parser.add_argument('--miniset_ratio', type=float, default=None,
+                    help='Ratio of mini training and validation set.')
+
+
 
 args = parser.parse_args()
 args.best_record = {'epoch': -1, 'iter': 0, 'val_loss': 1e10, 'acc': 0,

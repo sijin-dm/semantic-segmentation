@@ -85,7 +85,8 @@ class Loader(BaseLoader):
             img_root = os.path.join(root, split_name, 'images')
             mask_root = os.path.join(root, split_name, self.version, self.label_folder)
             self.all_imgs = self.find_images(img_root, mask_root, img_ext,
-                                             mask_ext)
+                                             mask_ext, cfg.DATASET.MINISET_RATIO)
+
         logx.msg('all imgs {}'.format(len(self.all_imgs)))
         self.centroids = uniform.build_centroids(self.all_imgs,
                                                  self.num_classes,

@@ -117,6 +117,9 @@ __C.DATASET.MAPILLARY_CROP_VAL = False
 __C.DATASET.CROP_SIZE = '896'
 __C.DATASET.MAPILLARY_VERSION = 'v1.2'
 
+# Define ratio for mini train and validation set for fast training.
+__C.DATASET.MINISET_RATIO = None
+
 __C.MODEL = AttrDict()
 __C.MODEL.BN = 'regularnorm'
 __C.MODEL.BNFUNC = None
@@ -418,6 +421,9 @@ def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
 
     if args.distillation_dynamic_weighting:
         __C.MODEL.DISTILLATION.DYNAMIC_WEIGHTING = True
+    
+    if args.miniset_ratio is not None:
+        __C.DATASET.MINISET_RATIO = args.miniset_ratio
         
     if make_immutable:
         cfg.immutable(True)

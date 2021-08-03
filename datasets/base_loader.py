@@ -71,13 +71,21 @@ class BaseLoader(data.Dataset):
                                         self.train)
 
     @staticmethod
-    def find_images(img_root, mask_root, img_ext, mask_ext):
+    def find_images(img_root, mask_root, img_ext, mask_ext, miniset_ratio=None):
         """
         Find image and segmentation mask files and return a list of
         tuples of them.
         """
         img_path = '{}/*.{}'.format(img_root, img_ext)
         imgs = glob.glob(img_path)
+        if miniset_ratio is not None:
+            assert miniset_ratio <= 1
+            import random
+            random.seed(123)
+            random.shuffle(imgs)
+            miniset_num = int(len(imgs)*miniset_ratio)
+            imgs = imgs[:miniset_num]
+            
         items = []
         for full_img_fn in imgs:
             img_dir, img_fn = os.path.split(full_img_fn)
