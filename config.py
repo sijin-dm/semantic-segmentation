@@ -43,6 +43,16 @@ import torch
 from utils.attr_dict import AttrDict
 from runx.logx import logx
 
+def torch_version_float():
+    version_str = torch.__version__
+    version_re = re.search(r'^([0-9]+\.[0-9]+)', version_str)
+    if version_re:
+        version = float(version_re.group(1))
+        print(f'Torch version: {version}, {version_str}')
+    else:
+        version = 1.0
+        print(f'Can\'t parse torch version ({version}), assuming {version}')
+    return version
 
 __C = AttrDict()
 cfg = __C
@@ -66,7 +76,8 @@ __C.RESULT_DIR = None
 __C.OPTIONS = AttrDict()
 __C.OPTIONS.TEST_MODE = False
 __C.OPTIONS.INIT_DECODER = False
-__C.OPTIONS.TORCH_VERSION = None
+__C.OPTIONS.TORCH_VERSION = torch_version_float()
+
 
 __C.TRAIN = AttrDict()
 __C.TRAIN.RANDOM_BRIGHTNESS_SHIFT_VALUE = 10
@@ -115,19 +126,19 @@ __C.DATASET.LANCZOS_SCALES = False
 # Need to use this if you want to dump images
 __C.DATASET.MAPILLARY_CROP_VAL = False
 __C.DATASET.CROP_SIZE = '896'
-__C.DATASET.MAPILLARY_VERSION = 'v1.2'
+__C.DATASET.MAPILLARY_VERSION = 'v2.0_dm'
 
 # Define ratio for mini train and validation set for fast training.
 __C.DATASET.MINISET_RATIO = None
 
 __C.MODEL = AttrDict()
 __C.MODEL.BN = 'regularnorm'
-__C.MODEL.BNFUNC = None
+__C.MODEL.BNFUNC = torch.nn.BatchNorm2d
 __C.MODEL.MSCALE = False
 __C.MODEL.THREE_SCALE = False
 __C.MODEL.ALT_TWO_SCALE = False
 __C.MODEL.EXTRA_SCALES = '0.5,1.5'
-__C.MODEL.N_SCALES = None
+__C.MODEL.N_SCALES = [0.5,1.0,2.0]
 __C.MODEL.ALIGN_CORNERS = False
 __C.MODEL.MSCALE_LO_SCALE = 0.5
 __C.MODEL.OCR_ASPP = False
@@ -245,17 +256,6 @@ __C.MODEL.DISTILLATION.LOSS =  AttrDict()
 __C.MODEL.DISTILLATION.LOSS.NAME = "mse"
 __C.MODEL.DISTILLATION.LOSS.MSE_REDUCTION = "mean"
 
-def torch_version_float():
-    version_str = torch.__version__
-    version_re = re.search(r'^([0-9]+\.[0-9]+)', version_str)
-    if version_re:
-        version = float(version_re.group(1))
-        logx.msg(f'Torch version: {version}, {version_str}')
-    else:
-        version = 1.0
-        logx.msg(f'Can\'t parse torch version ({version}), assuming {version}')
-    return version
-
 
 def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
     """Call this function in your script after you have finished setting all cfg
@@ -265,8 +265,6 @@ def assert_and_infer_cfg(args, make_immutable=True, train_mode=True):
     settings during script execution (which can lead to hard to debug errors
     or code that's harder to understand than is necessary).
     """
-
-    __C.OPTIONS.TORCH_VERSION = torch_version_float()
 
     if hasattr(args, 'syncbn') and args.syncbn:
         if args.apex:
