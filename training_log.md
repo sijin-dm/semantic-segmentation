@@ -31,3 +31,12 @@ ddrnet23_slim_augment |  1024(1.0) | 0.5040767
 naive_lite_hrnet_ocr               | 1024 (0.5,1.0,2.0) | 0.5454124
 lite_hrnet_ocr               | 1024 (0.5,1.0,2.0) | 0.5753439
 HRNet-OCR-dm-train-wo-rmi-loss | 2177 (flip,0.5,1.0,2.0) |0.6662466
+
+# Mapillary v2.0_dm distillation
+Network| Resolution  | mIOU | Remark
+|----|----|----|----|
+OCR_HRNet_Mscale_OCR_DDRNET23_SLIM_Mscale | 1024 (0.5,1.0,2.0) | 0.5571049 | Full , BN not fixed
+OCR_HRNet_Mscale_OCR_DDRNET23_SLIM_Mscale | 1024 (0.5,1.0,2.0) | 0.4273543 | 0.1 miniset, BN not fixed
+OCR_HRNet_Mscale_OCR_DDRNET23_SLIM_Mscale | 1024 (0.5,1.0,2.0) | 0.46392435 | 0.1 miniset, BN fixed
+OCR_HRNet_Mscale_OCR_DDRNET23_SLIM_Mscale | 1024 (0.5,1.0,2.0) | 0.4978166 | 0.1 miniset, BN fixed,MC Dropout
+
