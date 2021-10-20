@@ -18,7 +18,7 @@ HPARAMS: [
    fp16: true,
    gblur: true,
 
-   bs_trn: 3,
+   bs_trn: 20,
 
    lr_schedule: poly,
    poly_exp: 1.0,
@@ -27,7 +27,7 @@ HPARAMS: [
    max_epoch: 200,
    rmi_loss: true,
 
-   arch: ocrnet.HRNet_Mscale,
-   n_scales: '0.5,1.0,2.0',
+   arch: ddrnet_23_slim.HRNet_Mscale,
+  #  n_scales: '0.5,1.0,2.0',
   }
 ]

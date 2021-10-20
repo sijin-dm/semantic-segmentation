@@ -46,6 +46,7 @@ def parse_args():
     parser.add_argument('--image_num', type=int, default=800)
     parser.add_argument('--mc_dropout_itr', type=int, default=10)
     parser.add_argument('--image_prefix', type=str, default='.jpg')
+    parser.add_argument('--has_subfolder', type=bool, default=False)
     args = parser.parse_args()
     return args
 
@@ -125,10 +126,15 @@ def main():
         enable_dropout(net)
 
     image_shape = (1280, 720)
-    image_num = 0
-    for image_subfolder in os.listdir(args.image_folder):
-        if image_subfolder.startswith('images') or image_subfolder.startswith('2021'):
-            image_num += len(list(glob.glob(os.path.join(args.image_folder, image_subfolder, '*'+args.image_prefix))))
+    image_list = []
+    if args.has_subfolder:
+        for image_subfolder in os.listdir(args.image_folder):
+            if image_subfolder.startswith('images') or image_subfolder.startswith('2021'):
+                image_list.extend(list(glob.glob(os.path.join(args.image_folder, image_subfolder, '*'+args.image_prefix))))
+    else:
+        image_list.extend(list(glob.glob(os.path.join(args.image_folder,'*'+args.image_prefix))))
+                          
+    image_num = len(image_list)
     print('Total image number: %d '%image_num)
     assert image_num != 0
     # Init hdf5.
@@ -137,28 +143,21 @@ def main():
     prob_cache = hdf5_handle.create_dataset("prob", (image_num, image_shape[1], image_shape[0]), 'f')
     mask_cache = hdf5_handle.create_dataset("mask", (image_num, image_shape[1], image_shape[0]), 'f')
 
-    image_list = []
     prob_hist_list = []
     cnt = 0
     with torch.no_grad():
-        for image_subfolder in os.listdir(args.image_folder):
-            print(image_subfolder)
-            if not(image_subfolder.startswith('images') or image_subfolder.startswith('2021')):
-                continue
-            # mod = importlib.import_module('datasets.{}'.format(args.dataset))
-            for image_file in glob.glob(os.path.join(args.image_folder, image_subfolder, '*'+args.image_prefix)):
-                print(image_file)
-                img = Image.open(image_file).convert('RGB')
-                img = img.resize(image_shape)
-                assert img is not None
-                x = input_transform(img).cuda().unsqueeze(0)
-                y = net(x)
-                y_cpu = (y[0].squeeze(0).cpu().numpy(), y[1].squeeze(0).cpu().numpy())
-                prob_cache[cnt, ...] = y_cpu[0]
-                mask_cache[cnt, ...] = y_cpu[1]
-                image_list.append(image_file)
-                prob_hist_list.append(get_lower_prob_ratio(y_cpu[0], args.prob_threshold))
-                cnt +=1 
+        for image_file in image_list:
+            print(image_file)
+            img = Image.open(image_file).convert('RGB')
+            img = img.resize(image_shape)
+            assert img is not None
+            x = input_transform(img).cuda().unsqueeze(0)
+            y = net(x)
+            y_cpu = (y[0].squeeze(0).cpu().numpy(), y[1].squeeze(0).cpu().numpy())
+            prob_cache[cnt, ...] = y_cpu[0]
+            mask_cache[cnt, ...] = y_cpu[1]
+            prob_hist_list.append(get_lower_prob_ratio(y_cpu[0], args.prob_threshold))
+            cnt +=1 
             #     if len(prob_hist_list) == 10:
             #         break
             # if len(prob_hist_list) == 10:

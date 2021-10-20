@@ -1,22 +1,24 @@
 # Run Evaluation on Mapillary with a pretrained model
 
-CMD: "CUDA_VISIBLE_DEVICES=1 python -m torch.distributed.launch --nproc_per_node=1 --master_port 2955 train.py"
+CMD: "CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port 2956 train.py"
 
 HPARAMS: [
   {
    dataset: mapillary,
    map_version: "v2.0_dm",
+   map_eval_size: 1024,
+   map_crop_val: true,
    syncbn: true,
    apex: true,
    fp16: true,
-   bs_val: 1,
+   bs_val: 24,
    eval: val,
-   map_eval_size: 2177,
    amp_opt_level: O3,
-   n_scales: "1.0",
+  #  n_scales: "1.0",
    do_flip: false,
-   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/dramatic-fulmar_2021.07.02_18.09/best_checkpoint_ep186.pth",
-   arch: ocrnet.HRNet_Mscale,
+   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
+   arch: ocrnet.DDRNet23_Slim_Mscale,
+   n_scales: "0.5,1.0",
    result_dir: LOGDIR,
   },
 ]

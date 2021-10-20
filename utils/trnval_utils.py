@@ -227,7 +227,7 @@ def validate_topn(val_loader, net, criterion, optim, epoch, args):
 
         # Run network
         assets, _iou_acc = \
-            run_minibatch(data, net, criterion, val_loss, True, args, val_idx)
+            eval_minibatch(data, net, criterion, val_loss, True, args, val_idx)
 
         # per-class metrics
         input_images, labels, img_names, _ = data

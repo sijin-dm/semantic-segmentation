@@ -1,4 +1,4 @@
-CMD: "CUDA_VISIBLE_DEVICES=1 python -m torch.distributed.launch --nproc_per_node=1 train.py"
+CMD: "CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 train.py"
 
 HPARAMS: [
   {
@@ -25,8 +25,9 @@ HPARAMS: [
    max_epoch: 200,
    rmi_loss: true,
 
-   arch: ocrnet.DDRNet23_Slim_Mscale,
-   n_scales: '0.5,1.0,2.0',
+   arch: ddrnet_23_slim.DDRNet23_Slim,
+   ddrnet_augment: true,
+  #  n_scales: '0.5,1.0,2.0',
 
   }
 ]

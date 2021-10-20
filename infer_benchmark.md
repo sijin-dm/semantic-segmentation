@@ -19,6 +19,9 @@ Network| Resolution  | Latency (ms) | GFlops | Mode
 OCR-HRNet_TRT(Backbone+Interpolate+Softmax+Max)| 768x384 | 151  ms  | fp16
 OCR-HRNet_TRT(Backbone+Interpolate+Softmax+Max)| 768x384 | 109  ms  | int8
 OCR-DDRNet23-Slim_TRT(Backbone+Interpolate+Softmax+Max)| 768x384 | 31  ms | fp16
+OCR-DDRNet23-Slim_TRT(Backbone+Interpolate+Softmax+Max+Triton)| 768x384 | 40  ms | fp16
+OCR-DDRNet23-Slim_TRT(Backbone+Interpolate+Softmax+Max+Triton)| 640x360 | 35  ms | fp16
+OCR-DDRNet23-Slim_TRT(Backbone+Interpolate+Softmax+Max+Triton)| 640x360 | 29.3  ms | int8
 OCR-DDRNet23-Slim_TRT(Backbone+Interpolate+Softmax+Max)| 768x384 | 29  ms | int8
 OCR-DDRNet23-Slim_TRT(Backbone+Interpolate+Softmax)-Torch(Max)| 768x384 | 23  ms | fp16
 OCR-DDRNet23-Slim_Mscale_0.5_1.0_TRT(Backbone+Interpolate+Softmax+Max)| 768x384 | 42  ms | fp16

@@ -1,0 +1,33 @@
+# Run Evaluation and Dump Images on Cityscapes with a pretrained model
+
+CMD: "CUDA_VISIBLE_DEVICES=0 python -m torch.distributed.launch --nproc_per_node=1 --master_port 2956 train.py "
+
+HPARAMS: [
+  {
+   dataset: mapillary,
+   map_version: "v2.0_dm",
+   crop_size: "384,768",
+   cv: 0,
+   syncbn: true,
+   apex: true,
+   fp16: true,
+   bs_val: 1,
+   eval: folder,
+   eval_folder: '/mnt/nas/share-map/common/DMCar/rawdata/20210705024852/images_gap3', #'/mnt/nas/share-map/experiment/sijin/05data', #'/mnt/nas/share-map/experiment/liuye/Mobili/Image',
+   dump_assets: true,
+   dump_all_images: true,
+  #  dump_for_auto_labelling: true, # For labeling
+   map_eval_size: 1024,
+   map_crop_val: true,
+  #  pre_size: 1440,
+  #  n_scales: "0.5,1.0,2.0",
+  #  snapshot: "ASSETS_PATH/04model/seg_weights/mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake.pth",
+  #  snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/2021.07.02_18.09/best_checkpoint_ep186.pth",
+   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
+  #  arch: ocrnet.HRNet_Mscale,
+   arch: ocrnet.DDRNet23_Slim,
+   result_dir: LOGDIR,
+  },
+]
+
+#snapshot: "ASSETS_PATH/04model/seg_weights/cityscapes_ocrnet.HRNet_Mscale_outstanding-turtle.pth",
