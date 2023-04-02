@@ -7,7 +7,7 @@ HPARAMS: [
    dataset: mapillary,
    map_version: "v2.0_dm",
   #  crop_size: "384,768",
-   crop_size: "360,640",
+   crop_size: "720,1280",
    cv: 0,
    syncbn: false,
    apex: false,
@@ -18,9 +18,9 @@ HPARAMS: [
    dump_assets: true,
    dump_all_images: true,
    # OCR_HRNet
-  #  snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/hrnet_ocr_mscale/2021.07.02_18.09/best_checkpoint_ep186.pth",
-  #  arch: ocrnet_trt.HRNet_Mscale,
-   n_scales: ['1.0'],
+   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/hrnet_ocr_mscale/2021.07.02_18.09/best_checkpoint_ep186.pth",
+   arch: ocrnet_trt.HRNet_Mscale,
+   n_scales:  "0.5,1.0",
 
   # OCR_HRNet_W18
   #  snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/hrnet_ocr_mscale/2021.07.02_18.09/best_checkpoint_ep186.pth",
@@ -28,8 +28,8 @@ HPARAMS: [
   #  arch: ocrnet_trt.NaiveLiteHRNet,
 
    # OCR_DDRNet23_Slim
-   snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
-   arch: ocrnet_trt.DDRNet23_Slim,
+  #  snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim_mscale/2021.07.08_11.27/best_checkpoint_ep194.pth",
+  #  arch: ocrnet_trt.DDRNet23_Slim,
 
   #  snapshot: "ASSETS_PATH/01code/semantic-segmentation/logs/train_mapillary_v100/ddrnet23_slim/tentacled-chipmunk_2021.07.12_11.20/best_checkpoint_ep183.pth",
   #  arch: ddrnet_23_slim_trt.DDRNet23_Slim,
